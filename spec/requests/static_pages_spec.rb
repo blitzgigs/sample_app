@@ -20,8 +20,8 @@ describe "Static pages" do
     describe "for signed-in users" do
       let(:user) { FactoryGirl.create(:user) }
       before do
-        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
-        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        FactoryGirl.create(:micropost, user: user, content: "Lorem")
+        FactoryGirl.create(:micropost, user: user, content: "Ipsum")
         sign_in user
         visit root_path
       end
@@ -32,18 +32,20 @@ describe "Static pages" do
         end
       end
 
-      it "should have a proper count of feed items" do
-        expect(page).to have_content(user.feed.count)
-        expect(page).to have_content(user.feed.count.to_s << " microposts")
-      end 
-      
-      it "should have proper pagination for microposts" do
-        50.times { FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum") }
-        visit root_path
-        expect(page).to have_selector('div.pagination')
-      end 
+      describe "follower/following counts" do
+        let(:other_user) { FactoryGirl.create(:user) }
+        before do
+          other_user.follow!(user)
+          visit root_path
+        end
 
+        it { should have_link("0 following", href: following_user_path(user)) }
+        it { should have_link("1 followers", href: followers_user_path(user)) }
+      end
     end
+
+    
+
   end
 
   describe "Help page" do
