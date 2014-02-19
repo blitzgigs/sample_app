@@ -31,6 +31,18 @@ describe "Static pages" do
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      it "should have a proper count of feed items" do
+        expect(page).to have_content(user.feed.count)
+        expect(page).to have_content(user.feed.count.to_s << " microposts")
+      end 
+      
+      it "should have proper pagination for microposts" do
+        50.times { FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum") }
+        visit root_path
+        expect(page).to have_selector('div.pagination')
+      end 
+
     end
   end
 
